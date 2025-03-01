@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎁 Crypto Bot Gift</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a0033, #4b0f6d);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+        }
+        .container {
+            width: 90%;
+            max-width: 400px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+        .input-group {
+            margin: 10px 0;
+            text-align: left;
+        }
+        label {
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: none;
+            border-radius: 5px;
+            outline: none;
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            font-size: 1rem;
+            transition: 0.3s;
+        }
+        input::placeholder, textarea::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        input:focus, textarea:focus, select:focus {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 15px;
+            border: none;
+            border-radius: 5px;
+            background: #6200ea;
+            color: #fff;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover {
+            background: #4500b5;
+        }
+        .status {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #ffeb3b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎁 Crypto Bot Gift</h1>
+        <form id="sendMessageForm">
+            <div class="input-group">
+                <label>📌 Chat ID</label>
+                <input type="text" id="chatId" name="chatId" placeholder="Enter Channel/Chat ID" required>
+            </div>
+            <div class="input-group">
+                <label>💱 Select Currency</label>
+                <select id="currency">
+                    <option value="USDT">USDT</option>
+                    <option value="BTC">Bitcoin (BTC)</option>
+                    <option value="ETH">Ethereum (ETH)</option>
+                    <option value="DOGS">Dogs (DOGS)</option>
+                    <option value="TON">Toncoin (TON)</option>
+                    <option value="LTC">Litecoin (LTC)</option>
+                    <option value="BNB">Binance Coin (BNB)</option>
+                    <option value="SOL">Solana (SOL)</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>💰 Amount</label>
+                <input type="text" id="amount" name="amount" placeholder="Enter Amount" required>
+            </div>
+            <button type="submit">🚀 Send</button>
+        </form>
+        <div class="status" id="statusMessage"></div>
+    </div>
+
+    <script>
+        const form = document.getElementById('sendMessageForm');
+        const statusMessage = document.getElementById('statusMessage');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const chatId = document.getElementById('chatId').value;
+            const currency = document.getElementById('currency').value;
+            const amount = document.getElementById('amount').value;
+            const photoUrl = "https://trickspotzone.github.io/xRocket-Auto-Pay-Bot/assets/IMG_20250227_234056_692.jpg";
+            const caption = "🎁 I have a gift for you! Tap the button below to open it.";
+            const buttonText = `✅ Received: ${amount} ${currency}`;
+            const buttonUrl = "http://t.me/CryptoBot?start=wallet";
+
+            const botToken = '7879136047:AAEsSGC7CV4fhGbdVA7iU5z1JjNRKlbEXhQ'; // Replace with your bot token
+            const apiUrl = `https://api.telegram.org/bot${botToken}/sendPhoto`;
+
+            const payload = {
+                chat_id: chatId,
+                photo: photoUrl,
+                caption: caption,
+                parse_mode: "HTML",
+                reply_markup: JSON.stringify({
+                    inline_keyboard: [[{ text: buttonText, url: buttonUrl }]]
+                })
+            };
+
+            statusMessage.innerText = "⏳ Sending...";
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                if (result.ok) {
+                    statusMessage.innerText = "✅ sent successfully!";
+                } else {
+                    statusMessage.innerText = "❌ Failed: " + result.description;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                statusMessage.innerText = "⚠️ An error occurred!";
+            }
+        });
+    </script>
+</body>
+</html>
