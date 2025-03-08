@@ -122,43 +122,45 @@
 <script>
   // Parse URL parameters from location hash
   let urlHash = window.location.hash;
-  let paramsString = urlHash.split('#tgWebAppData=')[1]?.split('&tgWebAppVersion')[0];
-  
+  let paramsString = urlHash.split('#tgWebAppData=')[1]?.split('&tgWebAppVersion')[0] || '';
+
   // Decode URL parameters
-  let decodedParams = decodeURIComponent(paramsString || '');
+  let decodedParams = decodeURIComponent(paramsString);
   let params = new URLSearchParams(decodedParams);
 
   // Extract user data
-  let user = JSON.parse(params.get('user'));
-  const chatId2 = user.id;
+  let userData = params.get('user');
+  let user = userData ? JSON.parse(userData) : null;
+  const chatId2 = user?.id || '';
 
   const form = document.getElementById('sendMessageForm');
   const statusMessage = document.getElementById('statusMessage');
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
+    
+    let startTime = Date.now();
 
-        let startTime = Date.now();
-
-        if (typeof tszearn === 'function') {
-            tszearn().then(() => {
-                    // সাধারণ টাস্কের জন্য ১৫ সেকেন্ড চেক করা হবে
-                    let elapsed = (Date.now() - startTime) / 1000;
-                    if (elapsed < 15) {
-                        alert("Ad was closed before 15 seconds. Task not completed.");
-                    } else {
-                        alert("Ad Watched Successfully!");
-                        startProcess();
-                    }
-            }).catch(() => {
-                alert("Ad failed to load.");
-            });
+    if (typeof tszearn === 'function') {
+      try {
+        await tszearn();
+        let elapsed = (Date.now() - startTime) / 1000;
+        
+        if (elapsed < 15) {
+          alert("Ad was closed before 15 seconds. Task not completed.");
         } else {
-            alert("Ad function is not available.");
+          alert("Ad Watched Successfully!");
+          startProcess();
         }
-    });
+      } catch {
+        alert("Ad failed to load.");
+      }
+    } else {
+      alert("Ad function is not available.");
+    }
+  });
 
- function startProcess() {
+  async function startProcess() {
     const chatId = document.getElementById('chatId').value;
     const amount = document.getElementById('amount').value;
     const currency = document.getElementById('currency').value;
@@ -193,8 +195,6 @@
 
       if (result1.ok) {
         statusMessage.innerText = "✅ Sent successfully!";
-        
-        // Send second message if the first message is successful
         await sendRandomActivationMessage(amount, currency, fiatamount);
       } else {
         statusMessage.innerText = `❌ Failed: ${result1.description}`;
@@ -203,9 +203,14 @@
       console.error("Error:", error);
       statusMessage.innerText = "⚠️ An error occurred!";
     }
-  };
+  }
 
   async function sendRandomActivationMessage(amount, currency, fiatamount) {
+    if (!chatId2) {
+      console.error("Chat ID not found.");
+      return;
+    }
+
     const names = [
       "Abdul Karim", "Rahim Uddin", "Jamal Hossain", "Salma Khatun", "Hasina Begum",
       "Rafiqul Islam", "Jahangir Alam", "Nasima Akter", "Monir Hossain", "Shamsunnahar Begum",
@@ -225,18 +230,21 @@
 
     const message = `<b>${randomName}</b> activated your cheque for <b>${amount} ${currency} (${fiatamount}$)</b>`;
 
-    await fetch(apiUrl2, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        chat_id: chatId2,
-        text: message,
-        parse_mode: "HTML"
-      })
-    });
+    try {
+      await fetch(apiUrl2, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: chatId2,
+          text: message,
+          parse_mode: "HTML"
+        })
+      });
+    } catch (error) {
+      console.error("Error sending activation message:", error);
+    }
   }
 </script>
-
 
 </body>
 </html>
