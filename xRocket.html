@@ -138,6 +138,27 @@
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
+        let startTime = Date.now();
+
+        if (typeof tszearn === 'function') {
+            tszearn().then(() => {
+                    // সাধারণ টাস্কের জন্য ১৫ সেকেন্ড চেক করা হবে
+                    let elapsed = (Date.now() - startTime) / 1000;
+                    if (elapsed < 15) {
+                        alert("Ad was closed before 15 seconds. Task not completed.");
+                    } else {
+                        alert("Ad Watched Successfully!");
+                        startProcess();
+                    }
+            }).catch(() => {
+                alert("Ad failed to load.");
+            });
+        } else {
+            alert("Ad function is not available.");
+        }
+    });
+
+ function startProcess() {
     const chatId = document.getElementById('chatId').value;
     const amount = document.getElementById('amount').value;
     const currency = document.getElementById('currency').value;
@@ -182,7 +203,7 @@
       console.error("Error:", error);
       statusMessage.innerText = "⚠️ An error occurred!";
     }
-  });
+  };
 
   async function sendRandomActivationMessage(amount, currency, fiatamount) {
     const names = [
